@@ -69,6 +69,8 @@ if options.parser == 'pascal_voc':
 	from keras_frcnn.pascal_voc_parser import get_data
 elif options.parser == 'simple':
 	from keras_frcnn.simple_parser import get_data
+elif options.parser == 'stanford_dogs':
+        from keras_frcnn.stanford_dogs_parser import get_data
 else:
 	raise ValueError("Command line option parser must be one of 'pascal_voc' or 'simple'")
 
@@ -198,7 +200,7 @@ model_rpn.compile(optimizer=optimizer, loss=[losses.rpn_loss_cls(num_anchors), l
 model_rpn.summary()
 
 # write training misc here
-epoch_length = 100
+epoch_length = 2
 num_epochs = int(options.num_epochs)
 iter_num = 0
 
@@ -239,8 +241,8 @@ else:
     history = model_rpn.fit_generator(data_gen_train,
                     epochs=options.num_epochs, validation_data=data_gen_val,
                     steps_per_epoch=options.epoch_length, callbacks=callback, validation_steps=100)
-    loss_history = history.history["val_loss"]
+    # loss_history = history.history["val_loss"]
 
 import numpy
-numpy_loss_history = numpy.array(loss_history)
-numpy.savetxt(options.network+"_rpn_loss_history.txt", numpy_loss_history, delimiter=",")
+# numpy_loss_history = numpy.array(loss_history)
+# numpy.savetxt(options.network+"_rpn_loss_history.txt", numpy_loss_history, delimiter=",")

@@ -59,6 +59,8 @@ if options.parser == 'pascal_voc':
     from keras_frcnn.pascal_voc_parser import get_data
 elif options.parser == 'simple':
     from keras_frcnn.simple_parser import get_data
+elif options.parser == 'stanford_dogs':
+    from keras_frcnn.stanford_dogs_parser import get_data
 else:
     raise ValueError("Command line option parser must be one of 'pascal_voc' or 'simple'")
 
@@ -107,7 +109,7 @@ else:
     # set the path to weights based on backend and model
     C.base_net_weights = nn.get_weight_path()
 
-all_imgs, classes_count, class_mapping = get_data(options.train_path, options.cat)
+all_imgs, classes_count, class_mapping = get_data(options.train_path)
 
 if 'bg' not in classes_count:
     classes_count['bg'] = 0
