@@ -16,8 +16,8 @@ def get_data(data_paths):
         # test_list = loadmat(os.path.join(data_paths, 'lists', 'test_list.mat'))
 
         print('Parsing annotation files')
-        annot_path = os.path.join(data_paths, 'annotation')
-        imgs_path = os.path.join(data_paths, 'images')
+        annot_path = os.path.join(data_paths, 'Annotation')
+        imgs_path = os.path.join(data_paths, 'Images')
         
         trainval = [tr[0][0] for tr in train_list['file_list']]
         trainval_files = trainval[:int(len(trainval)*0.8)]
