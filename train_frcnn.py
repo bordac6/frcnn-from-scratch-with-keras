@@ -218,7 +218,7 @@ class_mapping_inv = {v: k for k, v in class_mapping.items()}
 print('Starting training')
 
 vis = True
-
+losses_history = []
 for epoch_num in range(num_epochs):
 	progbar = generic_utils.Progbar(epoch_length)
 	print('Epoch {}/{}'.format(epoch_num + 1, num_epochs))
@@ -286,7 +286,8 @@ for epoch_num in range(num_epochs):
                                 sel_samples = random.choice(pos_samples)
 
 			loss_class = model_classifier.train_on_batch([X, X2[:, sel_samples, :]], [Y1[:, sel_samples, :], Y2[:, sel_samples, :]])
-
+			losses_history.append(loss_class)
+			
 			losses[iter_num, 0] = loss_rpn[1]
 			losses[iter_num, 1] = loss_rpn[2]
 
@@ -320,6 +321,7 @@ for epoch_num in range(num_epochs):
 					print('Elapsed time: {}'.format(time.time() - start_time))
 
 				curr_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
+				losses_history.append(curr_loss)
 				iter_num = 0
 				start_time = time.time()
 
@@ -334,5 +336,6 @@ for epoch_num in range(num_epochs):
 		except Exception as e:
 			print('Exception: {}'.format(e))
 			continue
-
+with open('/trainHistoryDict', 'wb') as file_pi:
+	pickle.dump(losses_history, file_pi)
 print('Training complete, exiting.')
