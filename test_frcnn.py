@@ -213,7 +213,7 @@ for annotation_data in all_test_imgs:
 	[Y1, Y2, F] = model_rpn.predict(X)
 	
 
-	R = roi_helpers.rpn_to_roi(Y1, Y2, C, K.image_dim_ordering(), overlap_thresh=0.3)
+	R = roi_helpers.rpn_to_roi(Y1, Y2, C, K.image_dim_ordering(), overlap_thresh=0.7)
 	print(R.shape)
     
 	# convert from (x1,y1,x2,y2) to (x,y,w,h)
