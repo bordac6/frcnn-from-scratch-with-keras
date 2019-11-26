@@ -77,5 +77,3 @@ def get_data(data_paths):
                         continue
                 
         return all_imgs, classes_count, class_mapping
-
-get_data('D:\Workspace\FMFI\ZS2019\PNNPPV\DU2\dataset')
