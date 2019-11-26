@@ -12,6 +12,7 @@ from keras.layers import Input
 from keras.models import Model
 from keras_frcnn import roi_helpers
 from keras.applications.mobilenet import preprocess_input
+from keras_frcnn.stanford_dogs_test_parser import get_data
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
@@ -78,6 +79,7 @@ C.use_vertical_flips = False
 C.rot_90 = False
 
 img_path = options.test_path
+all_test_imgs, classes_count, class_mapping = get_data(options.test_path)
 
 def format_img_size(img, C):
 	""" formats the image size based on config """
@@ -184,16 +186,19 @@ all_imgs = []
 
 classes = {}
 
-bbox_threshold = 0.5
+bbox_threshold = 0.8
 
 visualise = True
 
 num_rois = C.num_rois
+idx = -1
 
-for idx, img_name in enumerate(sorted(os.listdir(img_path))):
+for annotation_data in all_test_imgs:
+	idx+=1
+	img_name = annotation_data['filepath']
 	if not img_name.lower().endswith(('.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff')):
 		continue
-	print(img_name)
+
 	st = time.time()
 	filepath = os.path.join(img_path,img_name)
 
@@ -251,13 +256,13 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
 			probs[cls_name].append(np.max(P_cls[0,ii,:]))
 
 	all_dets = []
-
+    # add bboxes to image
 	for key in bboxes:
 		print(key)
 		print(len(bboxes[key]))
 		bbox = np.array(bboxes[key])
 
-		new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh = 0.3)
+		new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh = 0.7)
 		for jk in range(new_boxes.shape[0]):
 			(x1, y1, x2, y2) = new_boxes[jk,:]
 			(real_x1, real_y1, real_x2, real_y2) = get_real_coordinates(ratio, x1, y1, x2, y2)
@@ -279,7 +284,27 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
 	print(bboxes)
     # enable if you want to show pics
 	if options.write:
-           import os
-           if not os.path.isdir("results"):
-              os.mkdir("results")
-           cv2.imwrite('./results/{}.png'.format(idx),img)
+	   import os
+	   if not os.path.isdir("results"):
+	      os.mkdir("results")
+	   cv2.imwrite('./results/{}.png'.format(idx),img)
+    # evaluate mAP
+	def IOU(df):
+	    # determining the minimum and maximum -coordinates of the intersection rectangle
+	    xmin_inter = max(df.xmin, df.xmin_pred)
+	    ymin_inter = max(df.ymin, df.ymin_pred)
+	    xmax_inter = min(df.xmax, df.xmax_pred)
+	    ymax_inter = min(df.ymax, df.ymax_pred)
+	 
+	    # calculate area of intersection rectangle
+	    inter_area = max(0, xmax_inter - xmin_inter + 1) * max(0, ymax_inter - ymin_inter + 1)
+	 
+	    # calculate area of actual and predicted boxes
+	    actual_area = (df.xmax - df.xmin + 1) * (df.ymax - df.ymin + 1)
+	    pred_area = (df.xmax_pred - df.xmin_pred + 1) * (df.ymax_pred - df.ymin_pred+ 1)
+	 
+	    # computing intersection over union
+	    iou = inter_area / float(actual_area + pred_area - inter_area)
+	 
+	    # return the intersection over union value
+	    return iou
