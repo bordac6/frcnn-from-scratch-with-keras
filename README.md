@@ -1,3 +1,5 @@
+# theory paper [here](https://towardsdatascience.com/faster-r-cnn-for-object-detection-a-technical-summary-474c5b857b46)
+
 ![image](https://github.com/kentaroy47/frcnn-from-scratch-with-keras/blob/master/images/85.png)
 # What is this repo?
 - **Simple faster-RCNN codes in Keras!**
